@@ -11,9 +11,11 @@ import icon from 'astro-icon'
 
 import vercel from '@astrojs/vercel/serverless'
 
+const SITE_URL = 'https://andrew-fenton.github.io'
+
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://andrew-fenton.github.io',
+	site: SITE_URL,
 	integrations: [
 		expressiveCode(expressiveCodeOptions),
 		tailwind({
