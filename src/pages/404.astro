@@ -1,46 +1,129 @@
 ---
-import PageLayout from '@/layouts/BaseLayout.astro'
-import Button from '@/components/Button.astro'
-
-const meta = {
-	description: 'Not found',
-	title: '404'
-}
+import BaseHead from '@/components/BaseHead.astro'
 ---
 
-<PageLayout meta={meta}>
-	<a
-		href='https://github.com/srleom/astro-theme-resume.git'
-		class='flex flex-row items-center gap-x-3 rounded-3xl border border-input px-4 py-2 text-sm shadow-sm transition-all hover:shadow-md'
-	>
-		<span class='relative flex items-center justify-center'>
-			<span
-				class='absolute inline-flex h-2 w-2 animate-ping rounded-full border border-green-400 bg-green-400 opacity-75'
-			></span>
-			<span class='relative inline-flex h-2 w-2 rounded-full bg-green-400'></span>
-		</span>
+<html lang='en-CA'>
+	<head>
+		<BaseHead title='404' description='Page not found.' />
+		<link rel='preconnect' href='https://fonts.googleapis.com' />
+		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+		<link
+			href='https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap'
+			rel='stylesheet'
+		/>
+		<style>
+			@keyframes content-enter {
+				from {
+					opacity: 0;
+					transform: translateY(10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
 
-		<p class='font-medium'>Get free template</p>
-	</a>
-	<div class='px-4 py-10 text-center sm:px-6 lg:px-8'>
-		<h1 class='block text-7xl font-bold sm:text-9xl'>404</h1>
-		<p class='mt-3 text-muted-foreground'>Oops, something went wrong.</p>
-		<p class=''>Sorry, we couldn't find your page.</p>
-		<Button title='Back to home' href='/' style='button' class='mt-5'>
-			<svg
-				xmlns='http://www.w3.org/2000/svg'
-				width='14'
-				height='14'
-				viewBox='0 0 24 24'
-				slot='icon-after'
-				class='-scale-x-100'
-			>
-				<path
-					fill='currentColor'
-					d='m6.921 12.5l5.792 5.792L12 19l-7-7l7-7l.713.708L6.921 11.5H19v1z'
+			.enter {
+				animation: content-enter 0.5s ease-out forwards;
+				opacity: 0;
+				transform: translateY(10px);
+			}
+
+			.detail-text {
+				font-family:
+					'DM Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+					monospace;
+			}
+
+			.home-link {
+				color: #888;
+				cursor: pointer;
+				opacity: 0.6;
+				transition:
+					color 200ms ease,
+					opacity 200ms ease;
+			}
+
+			.home-link:hover,
+			.home-link:focus-visible {
+				color: #111;
+				opacity: 1;
+			}
+
+			.external-arrow {
+				display: inline-block;
+				font-size: 1.1em;
+				line-height: 1;
+				margin-inline-start: 0.18rem;
+				opacity: 0.72;
+				transform: translateY(-0.12em);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.enter {
+					animation: none;
+					opacity: 1;
+					transform: none;
+				}
+			}
+		</style>
+	</head>
+	<body class='overflow-x-hidden bg-[#fafafa] text-[#111]'>
+		<main
+			class='relative z-10 mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 pb-20 [font-family:Inter,sans-serif] sm:px-8'
+		>
+			<section class='w-full max-w-[420px]'>
+				<p
+					class='detail-text enter text-xs font-medium uppercase tracking-[0.12em] text-[#999]'
+					style='animation-delay: 0ms'
 				>
-				</path>
-			</svg>
-		</Button>
-	</div>
-</PageLayout>
+					404
+				</p>
+				<h1
+					class='enter mt-5 text-[44px] font-normal leading-none tracking-[-0.02em] text-[#111] sm:text-[56px]'
+					style='animation-delay: 80ms'
+				>
+					Page not found
+				</h1>
+				<p
+					class='detail-text enter mt-6 max-w-[320px] text-[15px] font-normal leading-[1.6] text-[#444] sm:text-[17px]'
+					style='animation-delay: 160ms'
+				>
+					This page does not exist or has moved.
+				</p>
+				<nav
+					aria-label='Not found navigation'
+					class='enter mt-8 flex items-center gap-5 text-sm font-normal'
+					style='animation-delay: 240ms'
+				>
+					<a class='detail-text home-link' href='/'> Home </a>
+				</nav>
+			</section>
+		</main>
+
+		<footer
+			class='fixed inset-x-0 bottom-0 z-50 flex h-14 items-center justify-center px-6 text-center text-xs font-normal leading-none text-[#999] [font-family:Inter,sans-serif]'
+		>
+			<span>Vancouver, BC · PT <time id='pacific-time'>--:--</time></span>
+		</footer>
+
+		<script>
+			const timeElement = document.getElementById('pacific-time')
+
+			const formatter = new Intl.DateTimeFormat('en-CA', {
+				hour: 'numeric',
+				minute: '2-digit',
+				timeZone: 'America/Vancouver'
+			})
+
+			function updatePacificTime() {
+				if (timeElement) {
+					timeElement.textContent = formatter.format(new Date())
+				}
+			}
+
+			updatePacificTime()
+			window.setInterval(updatePacificTime, 1000)
+		</script>
+	</body>
+</html>

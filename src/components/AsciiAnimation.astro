@@ -1,0 +1,123 @@
+---
+interface Props {
+	src?: string
+	basePath?: string
+	frameCount?: number
+	fps?: number
+	fontSize?: string
+	tone?: 'muted' | 'koi'
+	clip?: boolean
+	className?: string
+}
+
+const {
+	basePath,
+	className = '',
+	clip = true,
+	fontSize = '4px',
+	fps = 12,
+	frameCount,
+	src = '/animations/koi.frames.txt',
+	tone = 'muted'
+} = Astro.props
+---
+
+<pre
+	class={`ascii-animation ascii-animation-${tone} ${clip ? '' : 'ascii-animation-unclipped'} ${className}`}
+	data-base-path={basePath}
+	data-fps={fps}
+	data-frame-count={frameCount}
+	data-src={src}
+	style={`--ascii-font-size: ${fontSize}`}>
+</pre>
+
+<script>
+	const animations = document.querySelectorAll<HTMLPreElement>('.ascii-animation')
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+	for (const el of animations) {
+		const basePath = el.dataset.basePath
+		const frameCount = Number(el.dataset.frameCount || 0)
+		const src = el.dataset.src
+		const fps = Number(el.dataset.fps || 12)
+		const frameTime = 1000 / fps
+
+		if (!src && (!basePath || frameCount === 0)) continue
+
+		const frames: string[] = []
+
+		if (basePath && frameCount > 0) {
+			for (let index = 0; index < frameCount; index += 1) {
+				const frameNumber = String(index + 1).padStart(4, '0')
+				const response = await fetch(`${basePath}/frame_${frameNumber}.txt`)
+				frames.push(await response.text())
+			}
+		} else if (src) {
+			const text = await fetch(src).then((response) => response.text())
+			frames.push(...text.split(text.includes('\x1e') ? '\x1e' : '\n--FRAME--\n'))
+		}
+
+		const normalizedFrames = frames
+			.map((frame) => frame.replace(/\r\n/g, '\n').replace(/\n$/, ''))
+			.filter(Boolean)
+
+		if (normalizedFrames.length === 0) continue
+
+		let index = 0
+		let last = 0
+
+		el.textContent = normalizedFrames[0]
+
+		if (prefersReducedMotion || normalizedFrames.length === 1) continue
+
+		function tick(time: number) {
+			if (!document.hidden && time - last >= frameTime) {
+				el.textContent = normalizedFrames[index]
+				index = (index + 1) % normalizedFrames.length
+				last = time
+			}
+
+			requestAnimationFrame(tick)
+		}
+
+		requestAnimationFrame(tick)
+	}
+</script>
+
+<style>
+	.ascii-animation {
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		width: max-content;
+		white-space: pre;
+		font-family:
+			ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+		font-size: var(--ascii-font-size);
+		line-height: 0.95;
+		text-align: left;
+	}
+
+	.ascii-animation-unclipped {
+		max-width: none;
+		overflow: visible;
+	}
+
+	.ascii-animation-koi {
+		color: #c8c3bc;
+		background-image: linear-gradient(
+			90deg,
+			#d9584f 0%,
+			#ef7d57 14%,
+			#d8d2c8 30%,
+			#f7b267 42%,
+			#ef7d57 52%,
+			#d9584f 60%,
+			#eee8df 72%,
+			#b5b0aa 100%
+		);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+</style>
